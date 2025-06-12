@@ -2,45 +2,49 @@ using UnityEngine;
 
 public class DummyTarget : MonoBehaviour
 {
-    public GameObject swordCollectiblePrefab;
+    [Header("Sword Spawn")]
+    public GameObject swordPrefab;       // <- assign the prefab, not scene object
     public Transform spawnPoint;
 
-    public GameObject collapseEffect; // Optional: Dummy collapsing animation or particles
-    public AudioClip hitSound;
-    public AudioSource audioSource;
+    [Header("Collapse FX")]
+    public Animator animator;
+    public AudioSource collapseSound;
+
+    private bool isHit = false;
 
     private void OnCollisionEnter(Collision collision)
     {
-        Debug.Log("Collided with: " + collision.gameObject.name);
+        if (isHit) return;
 
         if (collision.gameObject.CompareTag("Shield"))
         {
-          Debug.Log("HIT by shield!");
+            isHit = true;
 
-        // Your remaining logic...
+            // Trigger collapse animation
+            if (animator != null)
+                animator.SetTrigger("Collapse");
+
+            // Play collapse sound
+            if (collapseSound != null)
+                collapseSound.Play();
+
+            // Spawn sword after a short delay to sync with animation
+            Invoke("SpawnSword", 1.0f); // delay should match animation timing
+
+            // Destroy dummy after animation finishes
+            Destroy(gameObject, 3f);
         }
-        if (collision.gameObject.CompareTag("Shield"))
+    }
+
+    void SpawnSword()
+    {
+        if (swordPrefab != null && spawnPoint != null)
         {
-
-            // Play sound
-            if (hitSound != null && audioSource != null)
-            {
-                audioSource.PlayOneShot(hitSound);
-            }
-
-            // Optional collapse visual
-            if (collapseEffect != null)
-            {
-                Instantiate(collapseEffect, transform.position, Quaternion.identity);
-            }
-
-            // Spawn collectible sword
-            if (swordCollectiblePrefab != null && spawnPoint != null)
-            {
-                Instantiate(swordCollectiblePrefab, spawnPoint.position, Quaternion.identity);
-            }
-
-            Destroy(gameObject); // Remove dummy
+            Instantiate(swordPrefab, spawnPoint.position, spawnPoint.rotation);
+        }
+        else
+        {
+            Debug.LogWarning("Sword prefab or spawn point not assigned.");
         }
     }
 }
