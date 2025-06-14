@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 
-public class KeycardCollector : MonoBehaviour
+public class KeycardCollect : MonoBehaviour
 {
     public GameObject collectPrompt;
     public GameObject keycardUIImage;

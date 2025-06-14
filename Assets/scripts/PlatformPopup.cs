@@ -4,51 +4,49 @@ using TMPro;
 public class PlatformPopup : MonoBehaviour
 {
     [Header("UI References")]
-    public GameObject uiPopup; // Drag your UI popup GameObject here
-    
-    [Header("Settings")]
+    public GameObject uiPopup; // Assign the UI GameObject (Canvas or Text) in Inspector
+    public TextMeshProUGUI textComponent; // Assign the TextMeshProUGUI element in Inspector
+
+    [Header("Popup Settings")]
+    [TextArea]
     public string popupMessage = "Press \"T\" to rotate sword.";
-    
-    void Start()
+
+    private void Start()
     {
-        // Make sure UI is hidden at start
+        // Disable popup at the start
         if (uiPopup != null)
             uiPopup.SetActive(false);
-        
-        // Set the popup text if there's a TextMeshPro component
-        TextMeshProUGUI textComponent = uiPopup.GetComponent<TextMeshProUGUI>();
-        if (textComponent != null)
+
+        // If a TextMeshProUGUI is assigned and popupMessage is filled, set it
+        if (textComponent != null && !string.IsNullOrEmpty(popupMessage))
+        {
             textComponent.text = popupMessage;
-        
-        // Or if TextMeshPro is a child of the popup
-        TextMeshProUGUI childText = uiPopup.GetComponentInChildren<TextMeshProUGUI>();
-        if (childText != null)
-            childText.text = popupMessage;
+        }
     }
-    
-    void OnTriggerEnter(Collider other)
+
+    private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))
         {
             ShowUI();
         }
     }
-    
-    void OnTriggerExit(Collider other)
+
+    private void OnTriggerExit(Collider other)
     {
         if (other.CompareTag("Player"))
         {
             HideUI();
         }
     }
-    
-    void ShowUI()
+
+    private void ShowUI()
     {
         if (uiPopup != null)
             uiPopup.SetActive(true);
     }
-    
-    void HideUI()
+
+    private void HideUI()
     {
         if (uiPopup != null)
             uiPopup.SetActive(false);
