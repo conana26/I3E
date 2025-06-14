@@ -1,12 +1,17 @@
 using UnityEngine;
 using UnityEngine.UI;
-
+using System.Collections;
 public class KeycardDoor : MonoBehaviour
 {
-    public GameObject useKeycardPrompt; // "Press U to Use Keycard"
-    public GameObject openDoorPrompt;   // "Press E to Open Door"
+    [Header("UI Prompts")]
+    public GameObject useKeycardPrompt;      // "Press U to Use Keycard"
+    public GameObject openDoorPrompt;        // "Press E to Open Door"
+    public GameObject needKeycardPrompt;     // "You need a Keycard." <-- new
+
+    [Header("Audio")]
     public AudioSource unlockSound;
     public AudioSource openSound;
+    public AudioSource lockedDoorSound;      // <-- new
 
     private bool isPlayerNear = false;
     private bool isUnlocked = false;
@@ -19,13 +24,26 @@ public class KeycardDoor : MonoBehaviour
         animator = GetComponent<Animator>();
         if (useKeycardPrompt) useKeycardPrompt.SetActive(false);
         if (openDoorPrompt) openDoorPrompt.SetActive(false);
+        if (needKeycardPrompt) needKeycardPrompt.SetActive(false);
     }
 
     void Update()
     {
-        if (isPlayerNear && !isUnlocked && Input.GetKeyDown(KeyCode.U) && KeycardManager.hasKeycard)
+        if (isPlayerNear && !isUnlocked)
         {
-            UnlockDoor();
+            if (Input.GetKeyDown(KeyCode.U))
+            {
+                if (KeycardManager.hasKeycard)
+                {
+                    UnlockDoor();
+                }
+                else
+                {
+                    // Player tried to use keycard without having one
+                    if (lockedDoorSound) lockedDoorSound.Play();
+                    if (needKeycardPrompt) StartCoroutine(ShowTemporaryPrompt(needKeycardPrompt, 2f));
+                }
+            }
         }
 
         if (isPlayerNear && isUnlocked && !isOpen && Input.GetKeyDown(KeyCode.E))
@@ -46,8 +64,11 @@ public class KeycardDoor : MonoBehaviour
     {
         isOpen = true;
         if (openSound) openSound.Play();
-        animator?.Play("DoorOpen", 0, 0.0f);
-        if (animator) animator.SetTrigger("Open");
+        if (animator)
+        {
+            animator.Play("DoorOpen", 0, 0.0f);
+            animator.SetTrigger("Open");
+        }
         if (openDoorPrompt) openDoorPrompt.SetActive(false);
     }
 
@@ -56,6 +77,7 @@ public class KeycardDoor : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             isPlayerNear = true;
+
             if (!isUnlocked && KeycardManager.hasKeycard)
             {
                 if (useKeycardPrompt) useKeycardPrompt.SetActive(true);
@@ -76,5 +98,11 @@ public class KeycardDoor : MonoBehaviour
             if (openDoorPrompt) openDoorPrompt.SetActive(false);
         }
     }
-}
 
+    IEnumerator ShowTemporaryPrompt(GameObject prompt, float duration)
+    {
+        prompt.SetActive(true);
+        yield return new WaitForSeconds(duration);
+        prompt.SetActive(false);
+    }
+}

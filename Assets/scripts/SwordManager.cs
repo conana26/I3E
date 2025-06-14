@@ -31,9 +31,14 @@ public class SwordManager : MonoBehaviour
 
         if (swordsCollected >= totalSwords)
         {
-            Debug.Log("You win!");
+            Debug.Log("All Swords Collected.");
             // Optional: show win UI
         }
+    }
+
+    public int GetCollectedCount()
+    {
+       return swordsCollected;
     }
 
     void UpdateUI()
