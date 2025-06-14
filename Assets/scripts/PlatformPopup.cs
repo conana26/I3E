@@ -1,3 +1,6 @@
+/* Creator: Lim Xue Zhi Conan
+   Date Of Creation: 12/6/25
+   Script: Displays a UI popup when the player enters a specific trigger area */
 using UnityEngine;
 using TMPro;
 
@@ -13,15 +16,11 @@ public class PlatformPopup : MonoBehaviour
 
     private void Start()
     {
-        // Disable popup at the start
         if (uiPopup != null)
             uiPopup.SetActive(false);
 
-        // If a TextMeshProUGUI is assigned and popupMessage is filled, set it
         if (textComponent != null && !string.IsNullOrEmpty(popupMessage))
-        {
             textComponent.text = popupMessage;
-        }
     }
 
     private void OnTriggerEnter(Collider other)

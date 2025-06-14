@@ -1,22 +1,27 @@
+/* Creator: Lim Xue Zhi Conan
+   Date Of Creation: 11/6/25
+   Script: Interactable sword pickup that shrinks and disappears */
 using System.Collections;
 using UnityEngine;
 
 public class SwordPickup : MonoBehaviour
 {
-    public GameObject interactionUI; // the "Press E" text
-    public GameObject swordObject;   // the actual sword model
-    public AudioSource pickupSound;  // sound to play
+    public GameObject interactionUI; // UI that shows "Press E"
+    public GameObject swordObject;   // Sword model to shrink
+    public AudioSource pickupSound;  // Sound effect on pickup
+
     private bool playerInRange = false;
     private bool isCollected = false;
 
     void Start()
     {
         if (interactionUI != null)
-            interactionUI.SetActive(false);
+            interactionUI.SetActive(false); // Hide UI at start
     }
 
     void Update()
     {
+        // If player presses E while near, collect the sword
         if (playerInRange && !isCollected && Input.GetKeyDown(KeyCode.E))
         {
             StartCoroutine(CollectSword());
@@ -33,7 +38,7 @@ public class SwordPickup : MonoBehaviour
         if (pickupSound != null)
             pickupSound.Play();
 
-        // Animate sword shrinking
+        // Smoothly shrink the sword
         float shrinkTime = 0.3f;
         Vector3 originalScale = swordObject.transform.localScale;
         float t = 0f;
@@ -45,8 +50,8 @@ public class SwordPickup : MonoBehaviour
             yield return null;
         }
 
-        SwordManager.instance.CollectSword();
-        Destroy(transform.parent.gameObject); // destroy full sword object
+        SwordManager.instance.CollectSword();         // Increase count
+        Destroy(transform.parent.gameObject);         // Destroy full object
     }
 
     void OnTriggerEnter(Collider other)
@@ -55,7 +60,7 @@ public class SwordPickup : MonoBehaviour
         {
             playerInRange = true;
             if (interactionUI != null)
-                interactionUI.SetActive(true);
+                interactionUI.SetActive(true); // Show prompt
         }
     }
 
@@ -65,7 +70,7 @@ public class SwordPickup : MonoBehaviour
         {
             playerInRange = false;
             if (interactionUI != null)
-                interactionUI.SetActive(false);
+                interactionUI.SetActive(false); // Hide prompt
         }
     }
 }

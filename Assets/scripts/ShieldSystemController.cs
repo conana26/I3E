@@ -1,11 +1,15 @@
+/* Creator: Lim Xue Zhi Conan
+   Date Of Creation: 13/6/25
+   Script: Shield system - pickup with 'P' and throw with 'F' */
+
 using UnityEngine;
 
 public class ShieldSystemController : MonoBehaviour
 {
-    public Transform holdPosition; // Assign this from player hand
-    public float throwForce = 20f;
-    public GameObject pickupPrompt; // UI text: "Press P to Pick Up"
-    public GameObject throwPrompt; // UI text: "Press F to Throw"
+    public Transform holdPosition;          // The hand position to attach shield to
+    public float throwForce = 20f;          // How fast the shield is thrown
+    public GameObject pickupPrompt;         // UI prompt: "Press P to Pick Up"
+    public GameObject throwPrompt;          // UI prompt: "Press F to Throw"
     public AudioSource pickupSound;
     public AudioSource throwSound;
 
@@ -18,20 +22,25 @@ public class ShieldSystemController : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         shieldCollider = GetComponent<Collider>();
+
+        // Shield starts as a pickup item
         rb.isKinematic = true;
         shieldCollider.isTrigger = true;
 
+        // Hide UI prompts initially
         if (pickupPrompt) pickupPrompt.SetActive(false);
         if (throwPrompt) throwPrompt.SetActive(false);
     }
 
     void Update()
     {
+        // Pickup when player is near and presses P
         if (isPlayerNear && !isHeld && Input.GetKeyDown(KeyCode.P))
         {
             PickUpShield();
         }
 
+        // Throw when player is holding it and presses F
         if (isHeld && Input.GetKeyDown(KeyCode.F))
         {
             ThrowShield();
@@ -43,15 +52,16 @@ public class ShieldSystemController : MonoBehaviour
         isHeld = true;
         if (pickupPrompt) pickupPrompt.SetActive(false);
 
-        // Snap to player's hand
+        // Attach shield to hand
         transform.SetParent(holdPosition);
         transform.localPosition = Vector3.zero;
         transform.localRotation = Quaternion.identity;
 
+        // Disable physics while held
         rb.isKinematic = true;
-        shieldCollider.isTrigger = false; // Disable trigger mode now
-        if (pickupSound) pickupSound.Play();
+        shieldCollider.isTrigger = false;
 
+        if (pickupSound) pickupSound.Play();
         if (throwPrompt) throwPrompt.SetActive(true);
     }
 
@@ -59,15 +69,18 @@ public class ShieldSystemController : MonoBehaviour
     {
         isHeld = false;
 
+        // Detach from hand
         transform.SetParent(null);
         rb.isKinematic = false;
-        rb.linearVelocity = Vector3.zero;
+
+        // Reset velocity
+        rb.velocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
 
-        // Add forward force
+        // Throw forward
         rb.AddForce(holdPosition.forward * throwForce, ForceMode.Impulse);
-        if (throwSound) throwSound.Play();
 
+        if (throwSound) throwSound.Play();
         if (throwPrompt) throwPrompt.SetActive(false);
     }
 
@@ -76,7 +89,9 @@ public class ShieldSystemController : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             isPlayerNear = true;
-            if (!isHeld && pickupPrompt) pickupPrompt.SetActive(true);
+
+            if (!isHeld && pickupPrompt)
+                pickupPrompt.SetActive(true);
         }
     }
 
@@ -85,7 +100,9 @@ public class ShieldSystemController : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             isPlayerNear = false;
-            if (pickupPrompt) pickupPrompt.SetActive(false);
+
+            if (pickupPrompt)
+                pickupPrompt.SetActive(false);
         }
     }
 }

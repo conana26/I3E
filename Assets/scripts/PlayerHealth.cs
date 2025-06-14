@@ -1,3 +1,7 @@
+/* Creator: Lim Xue Zhi Conan
+   Date Of Creation: 12/6/25
+   Script: Player health system with damage flash, death, and respawn handling */
+
 using UnityEngine;
 using TMPro;
 using StarterAssets;
@@ -13,17 +17,17 @@ public class PlayerHealth : MonoBehaviour
     public AudioSource damageAudio;
     public AudioSource deathAudio;
     public Image damageFlashImage;
-    public Color flashColor = new Color(1f, 0f, 0f, 0.5f);
+    public Color flashColor = new Color(1f, 0f, 0f, 0.5f); // Red flash
     public float flashSpeed = 5f;
 
     public GameObject deathScreen;
     public float respawnDelay = 3f;
 
     public Camera playerCamera;
-    public float zoomFOV = 40f;
+    public float zoomFOV = 40f;           // Zoom in when dying
     public float zoomDuration = 0.5f;
 
-    public Transform respawnPoint; // 🧍‍♂️ Respawn location
+    public Transform respawnPoint;        // 🧍‍♂️ Location to respawn
 
     private bool isDead = false;
     private bool damaged = false;
@@ -44,6 +48,7 @@ public class PlayerHealth : MonoBehaviour
         if (deathScreen != null)
             deathScreen.SetActive(false);
 
+        // Cache components
         inputScript = GetComponent<StarterAssetsInputs>();
         movementScript = GetComponent<FirstPersonController>();
         characterController = GetComponent<CharacterController>();
@@ -54,12 +59,14 @@ public class PlayerHealth : MonoBehaviour
 
     void Update()
     {
+        // If damaged this frame, show flash
         if (damaged)
         {
             damageFlashImage.color = flashColor;
         }
         else if (damageFlashImage != null)
         {
+            // Smoothly fade flash
             damageFlashImage.color = Color.Lerp(damageFlashImage.color, Color.clear, flashSpeed * Time.deltaTime);
         }
 
@@ -89,15 +96,14 @@ public class PlayerHealth : MonoBehaviour
     void UpdateHealthUI()
     {
         if (healthText != null)
-        {
             healthText.text = "Health: " + health.ToString();
-        }
     }
 
     void Die()
     {
         isDead = true;
 
+        // Stop player input and movement
         if (inputScript != null) inputScript.move = Vector2.zero;
         if (movementScript != null) movementScript.enabled = false;
 
@@ -118,6 +124,7 @@ public class PlayerHealth : MonoBehaviour
         float startFOV = playerCamera.fieldOfView;
         float t = 0f;
 
+        // Smooth camera zoom effect
         while (t < zoomDuration)
         {
             t += Time.deltaTime;
@@ -131,16 +138,16 @@ public class PlayerHealth : MonoBehaviour
     {
         yield return new WaitForSeconds(respawnDelay);
 
-        // Reset player
+        // Reset values
         isDead = false;
         health = maxHealth;
         UpdateHealthUI();
 
-        // Restore FOV
+        // Reset camera FOV
         if (playerCamera != null)
             playerCamera.fieldOfView = defaultFOV;
 
-        // Move to respawn point
+        // Move player back to checkpoint
         if (respawnPoint != null && characterController != null)
         {
             characterController.enabled = false;
@@ -149,7 +156,7 @@ public class PlayerHealth : MonoBehaviour
             characterController.enabled = true;
         }
 
-        // Re-enable movement
+        // Re-enable player control
         if (movementScript != null)
             movementScript.enabled = true;
 

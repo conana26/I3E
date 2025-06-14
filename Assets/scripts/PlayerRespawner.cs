@@ -1,3 +1,6 @@
+/* Creator: Lim Xue Zhi Conan
+   Date of Creation: 12/6/25
+   Script: player Respawn System*/
 using UnityEngine;
 
 public class PlayerRespawner : MonoBehaviour
